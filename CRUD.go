@@ -12,7 +12,7 @@ import (
 	"sql-golang-playground/repository"
 )
 
-func main() {
+func connectToDb() *sql.DB {
 	// Load environment variables from .env file
 	err := godotenv.Load()
 	if err != nil {
@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Main: Error opening database: %v", err)
 	}
-	defer db.Close() // Ensure database connection is closed when main function exits
+	// defer db.Close() // Ensure database connection is closed when main function exits - moved to main
 
 	// Ping to verify connection
 	err = db.Ping()
@@ -38,9 +38,10 @@ func main() {
 	}
 	log.Println("Main: Successfully connected to database!")
 
-    // Initialize transaction repository
-    transactionRepo := repository.NewMySQLTransactionRepository(db)
+	return db
+}
 
+func softDeleteDemo(db *sql.DB) {
     // Assume accID1 was created earlier
     accID1 := int64(1) // Replace with an actual ID from your DB
 
@@ -67,7 +68,9 @@ func main() {
     } else if affected > 0 {
         fmt.Printf("Undeleted account ID: %d\n", accID1)
     }
+}
 
+func totalBalanceDemo(db *sql.DB) {
 	// Get total balance of active accounts
 	totalBal, err := CalculateTotalBalanceOfActiveAccounts(db)
 	if err != nil {
@@ -75,7 +78,9 @@ func main() {
 	} else {
 		fmt.Printf("Total balance of all active accounts: %.2f\n", totalBal)
 	}
+}
 
+func transactionsWithCategoryDemo(db *sql.DB) {
 	// Get transactions with categories
 	aliceTransactionsWithCat, err := GetTransactionsWithCategory(db, 1)
 	if err != nil {
@@ -91,7 +96,9 @@ func main() {
 			fmt.Println()
 		}
 	}
+}
 
+func transactionWithNotesDemo(db *sql.DB) {
 	// Transaction WITH notes
 	desc1 := sql.NullString{String: "Salary payment", Valid: true}
 	notes1 := sql.NullString{String: "Monthly salary for June", Valid: true}
@@ -118,12 +125,14 @@ func main() {
 	} else {
 		fmt.Printf("Created transaction without notes, ID: %d\n", txID2)
 	}
+}
 
+func fundTransferDemo(db *sql.DB) {
     // --- Example: Fund Transfer (demonstrating new error handling) ---
     // Make sure accounts 1 and 2 exist and account 1 has funds
     // E.g., CreateAccount(db, "Sender One", 1000.00) -> ID 1
     //       CreateAccount(db, "Receiver Two", 200.00) -> ID 2
-    err = TransferFunds(db, 1, 2, 50.75, "Payment for services", "Invoice #123")
+    err := TransferFunds(db, 1, 2, 50.75, "Payment for services", "Invoice #123")
     if err != nil {
         log.Printf("ERROR: Fund transfer failed: %v", err) // Log the full wrapped error
         if errors.Is(err, ErrInsufficientFunds) {
@@ -135,7 +144,11 @@ func main() {
     } else {
         fmt.Println("Fund transfer initiated successfully (check logs for details).")
     }
+}
 
+func reconciliationDemo(db *sql.DB) {
+    // Initialize transaction repository
+    transactionRepo := repository.NewMySQLTransactionRepository(db)
 
     // --- Example: Reconciliation ---
     csvTransactions, err := loadExternalTransactions("external_transactions.csv")
@@ -151,6 +164,47 @@ func main() {
     log.Printf("Main: Fetched %d transactions from Database.\n", len(databaseTransactions))
 
     reconcileTransactions(databaseTransactions, csvTransactions)
+}
+
+func main() {
+	db := connectToDb()
+	defer db.Close() // Ensure database connection is closed when main function exits
+
+    demos := map[string]func(*sql.DB){
+        "soft_delete": softDeleteDemo,
+        "total_balance": totalBalanceDemo,
+        "transactions_with_category": transactionsWithCategoryDemo,
+        "transaction_with_notes": transactionWithNotesDemo,
+        "fund_transfer": fundTransferDemo,
+        "reconciliation": reconciliationDemo,
+    }
+
+    fmt.Println("Available Demos:")
+    for name := range demos {
+        fmt.Printf("  - %s\n", name)
+    }
+
+    fmt.Print("Enter the name of the demo to run (or 'all' to run all, 'exit' to quit): ")
+    var choice string
+    fmt.Scanln(&choice)
+
+    if choice == "all" {
+        for name, demoFunc := range demos {
+            fmt.Printf("\n--- Running Demo: %s ---\n", name)
+            demoFunc(db)
+            fmt.Printf("--- Finished Demo: %s ---\n", name)
+        }
+    } else if choice == "exit" {
+        fmt.Println("Exiting demo program.")
+    } else {
+        if demoFunc, ok := demos[choice]; ok {
+            fmt.Printf("\n--- Running Demo: %s ---\n", choice)
+            demoFunc(db)
+            fmt.Printf("--- Finished Demo: %s ---\n", choice)
+        } else {
+            fmt.Printf("Unknown demo: %s\n", choice)
+        }
+    }
 }
 
 // TransferFunds handles the atomic transfer of funds between two accounts.
