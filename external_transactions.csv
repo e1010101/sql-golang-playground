@@ -1,0 +1,7 @@
+ExternalID,Amount,Type,Reference
+EXT001,50.75,DEPOSIT,Payment from CompanyX
+EXT002,75.20,TRANSFER_OUT,Payment to SupplierY
+EXT003,30.00,WITHDRAWAL,ATM Cash WRLDNET
+EXT004,100.50,DEPOSIT,Refund from StoreZ
+EXT005,500.00,SALARY,Monthly Pay
+EXT006,20.00,TRANSFER_IN,From John Doe
