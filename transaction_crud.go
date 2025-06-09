@@ -136,6 +136,7 @@ func UpdateTransactionDescription(dbtx DBTX, transactionID int64, newDescription
     return rowsAffected, nil
 }
 
+
 // DeleteTransaction removes a transaction from the database.
 func DeleteTransaction(dbtx DBTX, transactionID int64) (int64, error) {
     query := "DELETE FROM transactions WHERE transaction_id = ?"
