@@ -5,6 +5,14 @@ import (
 	"sql-golang-playground/models"
 )
 
+// DBTX interface for database operations, allowing *sql.DB or *sql.Tx
+type DBTX interface {
+    Exec(query string, args ...interface{}) (sql.Result, error)
+    QueryRow(query string, args ...interface{}) *sql.Row
+    Query(query string, args ...interface{}) (*sql.Rows, error)
+    Prepare(query string) (*sql.Stmt, error)
+}
+
 // AccountRepository defines the interface for account-related database operations.
 type AccountRepository interface {
 	CreateAccount(holderName string, initialBalance float64) (int64, error)
