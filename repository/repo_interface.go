@@ -21,12 +21,14 @@ type AccountRepository interface {
 	UpdateAccountHolderName(accountID int64, newHolderName string) (int64, error)
 	AdjustAccountBalance(accountID int64, amountChange float64) (int64, error)
 	SoftDeleteAccount(accountID int64) (int64, error)
+    UndeleteAccount(accountID int64) (int64, error)
 	CalculateTotalBalanceOfActiveAccounts() (float64, error)
 }
 
 // TransactionRepository defines the interface for transaction-related database operations.
 type TransactionRepository interface {
 	CreateTransaction(fromID, toID sql.NullInt64, txType string, amount float64, description sql.NullString) (int64, error)
+    CreateTransactionWithNotes(fromID, toID sql.NullInt64, txType string, amount float64, description, notes sql.NullString) (int64, error)
 	GetTransactionByID(transactionID int64) (models.Transaction, error)
 	GetTransactionsForAccount(accountID int64) ([]models.Transaction, error)
 	GetTransactionsWithCategory(accountID int64) ([]models.TransactionWithCategory, error)

@@ -123,7 +123,7 @@ func fundTransferDemo(txService service.TransactionService) {
 
 func reconciliationDemo(reconciliationService service.ReconciliationService) {
     // --- Example: Reconciliation ---
-    reconciliationService.ReconcileTransactions("../data/external_transactions.csv")
+    reconciliationService.ReconcileTransactions("data/external_transactions.csv")
 }
 
 func main() {

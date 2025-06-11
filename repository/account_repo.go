@@ -114,6 +114,23 @@ func (r *mysqlAccountRepository) SoftDeleteAccount(accountID int64) (int64, erro
     return rowsAffected, nil
 }
 
+// UndeleteAccount reactivates a soft-deleted account.
+func (r *mysqlAccountRepository) UndeleteAccount(accountID int64) (int64, error) {
+    query := "UPDATE accounts SET is_deleted = FALSE WHERE account_id = ? AND is_deleted = TRUE"
+    result, err := r.db.Exec(query, accountID)
+    if err != nil {
+        return 0, fmt.Errorf("UndeleteAccount: %w", err)
+    }
+    rowsAffected, err := result.RowsAffected()
+    if err != nil {
+        return 0, fmt.Errorf("UndeleteAccount: RowsAffected failed: %w", err)
+    }
+    if rowsAffected == 0 {
+        return 0, fmt.Errorf("UndeleteAccount: no soft-deleted account found with ID %d to undelete, or already active", accountID)
+    }
+    return rowsAffected, nil
+}
+
 // CalculateTotalBalanceOfActiveAccounts computes the sum of balances for all non-deleted accounts.
 func (r *mysqlAccountRepository) CalculateTotalBalanceOfActiveAccounts() (float64, error) {
     var totalBalance sql.NullFloat64

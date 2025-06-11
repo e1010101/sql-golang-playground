@@ -31,6 +31,21 @@ func (r *mysqlTransactionRepository) CreateTransaction(fromID, toID sql.NullInt6
     return id, nil
 }
 
+// CreateTransactionWithNotes inserts a new transaction with additional notes and returns its ID.
+func (r *mysqlTransactionRepository) CreateTransactionWithNotes(fromID, toID sql.NullInt64, txType string, amount float64, description, notes sql.NullString) (int64, error) {
+    query := "INSERT INTO transactions (from_account_id, to_account_id, transaction_type, amount, description, notes, transaction_ts) VALUES (?, ?, ?, ?, ?, ?, NOW())"
+    result, err := r.db.Exec(query, fromID, toID, txType, amount, description, notes)
+    if err != nil {
+        return 0, fmt.Errorf("CreateTransactionWithNotes: %w", err)
+    }
+
+    id, err := result.LastInsertId()
+    if err != nil {
+        return 0, fmt.Errorf("CreateTransactionWithNotes: LastInsertId failed: %w", err)
+    }
+    return id, nil
+}
+
 // GetTransactionByID retrieves a single transaction by its ID.
 func (r *mysqlTransactionRepository) GetTransactionByID(transactionID int64) (models.Transaction, error) {
     var tx models.Transaction

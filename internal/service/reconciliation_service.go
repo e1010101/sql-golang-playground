@@ -6,7 +6,6 @@ import (
 	"log"
 	"strings"
 
-	"sql-golang-playground/models"
 	"sql-golang-playground/repository"
 	"sql-golang-playground/internal/util"
 )
