@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"errors" // Keep errors import for service.Err*
+	"errors"
 
 	"sql-golang-playground/internal/db"
 	"sql-golang-playground/repository"
@@ -73,7 +73,6 @@ func transactionWithNotesDemo(transactionRepo repository.TransactionRepository) 
 	// Transaction WITH notes
 	desc1 := sql.NullString{String: "Salary payment", Valid: true}
 	notes1 := sql.NullString{String: "Monthly salary for June", Valid: true}
-	// Assuming account ID 1 exists (e.g., Alice's account)
 	toAccount1 := sql.NullInt64{Int64: 1, Valid: true} // Deposit to Alice
 	fromAccount1 := sql.NullInt64{Valid: false}      // From external source
 
@@ -105,7 +104,7 @@ func fundTransferDemo(txService service.TransactionService) {
     //       CreateAccount(db, "Receiver Two", 200.00) -> ID 2
     err := txService.TransferFunds(1, 2, 50.75, "Payment for services", "Invoice #123")
     if err != nil {
-        log.Printf("ERROR: Fund transfer failed: %v", err) // Log the full wrapped error
+        log.Printf("ERROR: Fund transfer failed: %v", err)
         if errors.Is(err, service.ErrInsufficientFunds) {
             fmt.Println("User Message: The transfer could not be completed due to insufficient funds.")
         } else if errors.Is(err, service.ErrAccountNotFound) || errors.Is(err, service.ErrAccountInactive) {
@@ -122,7 +121,6 @@ func fundTransferDemo(txService service.TransactionService) {
 }
 
 func reconciliationDemo(reconciliationService service.ReconciliationService) {
-    // --- Example: Reconciliation ---
     reconciliationService.ReconcileTransactions("data/external_transactions.csv")
 }
 

@@ -9,5 +9,5 @@ type Account struct {
     AccountHolder string
     Balance       float64
     LastUpdated   time.Time
-    IsDeleted     bool // New field for soft deletion
+    IsDeleted     bool
 }

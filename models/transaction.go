@@ -13,7 +13,7 @@ type Transaction struct {
     Amount          float64
     TransactionTs   time.Time
     Description     sql.NullString // Assuming description can be NULL
-    Notes           sql.NullString // New field for transaction notes
+    Notes           sql.NullString
 }
 
 type TransactionWithCategory struct {
